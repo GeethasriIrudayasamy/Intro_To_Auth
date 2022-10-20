@@ -1,5 +1,11 @@
-import React, { useEffect, useState, useReducer, useContext } from "react";
-
+import React, {
+    useEffect,
+    useState,
+    useReducer,
+    useContext,
+    useRef,
+} from "react";
+import Input from "../Input/Input";
 import Card from "../UI/Card/Card";
 import classes from "./Login.module.css";
 import Button from "../UI/Button/Button";
@@ -47,6 +53,10 @@ const Login = (props) => {
     // const [passwordIsValid, setPasswordIsValid] = useState();
     // const [enteredCollege, setEnteredCollege] = useState("");
     // const [collegeIsValid, setCollegeIsValid] = useState();
+    const emailInputRef = useRef();
+    const passwordInputRef = useRef();
+    const collegeInputRef = useRef();
+
     const [formIsValid, setFormIsValid] = useState(false);
 
     const [emailState, dispatchEmail] = useReducer(emailReducer, {
@@ -125,58 +135,53 @@ const Login = (props) => {
         dispatchPassword({ type: ACTIONS.INPUT_BLUR });
     };
 
-    const ctx = useContext(AuthContext);
+    const authCtx = useContext(AuthContext);
 
     const submitHandler = (event) => {
         event.preventDefault();
-        ctx.onLogin(emailState.value, passwordState.value);
+        if (formIsValid) {
+            authCtx.onLogin(emailState.value, passwordState.value);
+        } else if (!emailState.IsValid) {
+            emailInputRef.current.focus();
+        } else {
+            passwordInputRef.current.focus();
+        }
     };
 
     return (
         <Card className={classes.login}>
             <form onSubmit={submitHandler}>
-                <div
-                    className={`${classes.control} ${
-                        emailState === false ? classes.invalid : ""
-                    }`}
-                >
-                    <label htmlFor="email">E-Mail</label>
-                    <input
-                        type="email"
-                        id="email"
-                        value={emailState.value}
-                        onChange={emailChangeHandler}
-                        onBlur={validateEmailHandler}
-                    />
-                </div>
-                <div
-                    className={`${classes.control} ${
-                        passwordState === false ? classes.invalid : ""
-                    }`}
-                >
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={passwordState.value}
-                        onChange={passwordChangeHandler}
-                        onBlur={validatePasswordHandler}
-                    />
-                </div>
-                <div
-                    className={`${classes.control} ${
-                        collegeState === false ? classes.invalid : ""
-                    }`}
-                >
-                    <label htmlFor="college">College</label>
-                    <input
-                        type="text"
-                        id="college"
-                        value={collegeState.value}
-                        onChange={collegeChangeHandler}
-                        onBlur={validateCollegeHandler}
-                    />
-                </div>
+                <Input
+                    ref={emailInputRef}
+                    id="email"
+                    label="E-Mail"
+                    type="email"
+                    isValid={emailState.IsValid}
+                    value={emailState.value}
+                    onChange={emailChangeHandler}
+                    onBlur={validateEmailHandler}
+                />
+                <Input
+                    ref={passwordInputRef}
+                    id="password"
+                    label="Password"
+                    type="password"
+                    isValid={passwordState.IsValid}
+                    value={passwordState.value}
+                    onChange={passwordChangeHandler}
+                    onBlur={validatePasswordHandler}
+                />
+                <Input
+                    ref={collegeInputRef}
+                    id="college"
+                    label="college"
+                    type="text"
+                    isValid={collegeState.IsValid}
+                    value={collegeState.value}
+                    onChange={collegeChangeHandler}
+                    onBlur={validateCollegeHandler}
+                />
+
                 <div className={classes.actions}>
                     <Button
                         type="submit"
